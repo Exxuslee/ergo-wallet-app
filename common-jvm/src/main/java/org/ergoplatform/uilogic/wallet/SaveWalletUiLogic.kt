@@ -19,8 +19,14 @@ class SaveWalletUiLogic(val mnemonic: SecretString, private val fromRestore: Boo
 
     private var useDeprecatedDerivation: Boolean = false
 
+    val signingSecrets get() = SigningSecrets(mnemonic, useDeprecatedDerivation)
+
     var publicAddress: String = getPublicErgoAddressFromMnemonic(signingSecrets)
         private set
+
+
+
+
 
     val hasAlternativeAddress = fromRestore &&
             (!publicAddress.equals(
@@ -34,7 +40,7 @@ class SaveWalletUiLogic(val mnemonic: SecretString, private val fromRestore: Boo
 
     // methods
 
-    val signingSecrets get() = SigningSecrets(mnemonic, useDeprecatedDerivation)
+
 
     fun switchAddress() {
         if (hasAlternativeAddress) {

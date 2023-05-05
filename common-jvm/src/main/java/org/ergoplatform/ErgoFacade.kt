@@ -33,7 +33,7 @@ const val URL_FORGOT_PASSWORD_HELP =
 const val ERG_BASE_COST = 0
 private const val MAX_NUM_INPUT_BOXES = 100
 
-var isErgoMainNet: Boolean = true
+var isErgoMainNet: Boolean = false
 
 fun isValidErgoAddress(addressString: String): Boolean {
     if (addressString.isEmpty())

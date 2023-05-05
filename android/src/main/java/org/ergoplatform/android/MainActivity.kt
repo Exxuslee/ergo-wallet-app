@@ -2,6 +2,7 @@ package org.ergoplatform.android
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -26,12 +27,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.ergoplatform.SigningSecrets
 import org.ergoplatform.android.transactions.ChooseSpendingWalletFragmentDialog
 import org.ergoplatform.android.ui.AndroidStringProvider
 import org.ergoplatform.android.ui.QrScannerActivity
 import org.ergoplatform.android.ui.dpToPx
 import org.ergoplatform.android.ui.postDelayed
 import org.ergoplatform.android.wallet.WalletFragmentDirections
+import org.ergoplatform.appkit.SecretString
+import org.ergoplatform.getPublicErgoAddressFromMnemonic
 import org.ergoplatform.mosaik.getUnreadNotificationCount
 import org.ergoplatform.uilogic.MainAppUiLogic
 
@@ -39,9 +43,21 @@ class MainActivity : AppCompatActivity() {
     private val _keyboardStateFlow = MutableStateFlow(false)
     val keyboardStateFlow: StateFlow<Boolean> get() = _keyboardStateFlow
 
+
+    fun test(){
+        var useDeprecatedDerivation: Boolean = false
+        val mnemonic = SecretString.create("project fever obtain process dream poem book version ribbon dilemma capable trap network tilt economy")
+        var signingSecrets  = SigningSecrets(mnemonic, useDeprecatedDerivation)
+        var publicAddress: String = getPublicErgoAddressFromMnemonic(signingSecrets)
+        Log.e("111111111","publicAddress:"+publicAddress);
+    }
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        test()
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         setSupportActionBar(findViewById(R.id.toolbar))
 

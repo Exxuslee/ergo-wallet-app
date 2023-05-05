@@ -1,5 +1,6 @@
 package org.ergoplatform
 
+import jline.internal.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.ergoplatform.api.OkHttpSingleton
@@ -235,6 +236,10 @@ class WalletStateSyncManager {
         database.getAllWalletConfigsSynchronous().forEach { walletConfig ->
             walletConfig.firstAddress?.let { firstAddress ->
                 val walletState = database.loadWalletWithStateById(walletConfig.id)!!
+                walletState.addresses.forEach {
+                    Log.error("refreshWalletStates","publicAddress "+it.publicAddress+" address:"+it.address);
+                }
+
                 val allAddresses = ensureWalletAddressListHasFirstAddress(
                     walletState.addresses, firstAddress
                 )

@@ -7,4 +7,5 @@ import org.ergoplatform.appkit.NetworkType;
  */
 public class StageConstants {
     public static final NetworkType NETWORK_TYPE = NetworkType.MAINNET;
+//    public static final NetworkType NETWORK_TYPE = NetworkType.TESTNET;
 }
