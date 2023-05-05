@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ergoplatform.Application
 import org.ergoplatform.compose.settings.AppProgressIndicator
+import org.ergoplatform.compose.transactions.TransactionInfoLayout
 import org.ergoplatform.desktop.ui.AppScrollingLayout
 import org.ergoplatform.desktop.ui.defaultMaxWidth
 import org.ergoplatform.desktop.ui.defaultPadding
@@ -48,6 +49,8 @@ fun TransactionInfoScreen(
                     ti,
                     onTxIdClicked,
                     onTokenClick,
+                    Application.texts,
+                    getDb = { Application.database }
                 )
             }
         }

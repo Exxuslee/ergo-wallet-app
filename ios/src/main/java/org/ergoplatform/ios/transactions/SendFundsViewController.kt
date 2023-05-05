@@ -7,7 +7,9 @@ import org.ergoplatform.addressbook.getAddressLabelFromDatabase
 import org.ergoplatform.ios.addressbook.ChooseAddressDialogViewController
 import org.ergoplatform.ios.tokens.SendTokenEntryView
 import org.ergoplatform.ios.ui.*
+import org.ergoplatform.transactions.TransactionInfo
 import org.ergoplatform.transactions.TransactionResult
+import org.ergoplatform.transactions.reduceBoxes
 import org.ergoplatform.uilogic.*
 import org.ergoplatform.uilogic.transactions.SendFundsUiLogic
 import org.ergoplatform.utils.LogUtils
@@ -115,7 +117,7 @@ class SendFundsViewController(
             returnKeyType = UIReturnKeyType.Next
             delegate = object : UITextFieldDelegateAdapter() {
                 override fun shouldReturn(textField: UITextField?): Boolean {
-                    inputAmount.becomeFirstResponder() // TODO node 5.0 inputMessage.becomeFirstResponder()
+                    inputMessage.becomeFirstResponder()
                     return true
                 }
 
@@ -289,7 +291,7 @@ class SendFundsViewController(
                 readOnlyHint,
                 introLabel,
                 inputReceiver,
-                // TODO node 5.0 inputMessage,
+                inputMessage,
                 inputAmount,
                 otherCurrencyContainer,
                 feeLabel,
@@ -379,6 +381,9 @@ class SendFundsViewController(
     }
 
     private fun checkAndStartPayment() {
+        // auto correct could have changed the message after the last change event
+        uiLogic.message = inputMessage.text
+
         val checkResponse = uiLogic.checkCanMakePayment(getAppDelegate().prefs)
 
         inputReceiver.setHasError(checkResponse.receiverError)
@@ -401,7 +406,13 @@ class SendFundsViewController(
         }
 
         if (checkResponse.canPay) {
-            startPayment()
+            if (uiLogic.wallet!!.walletConfig.isReadOnly() == false)
+                uiLogic.prepareTransactionForSigning(
+                    getAppDelegate().prefs,
+                    IosStringProvider(texts)
+                )
+            else
+                startPayment()
         }
     }
 
@@ -444,8 +455,8 @@ class SendFundsViewController(
                 tokensError.isHidden = true
                 val walletStateSyncManager = WalletStateSyncManager.getInstance()
                 uiLogic.tokensChosen.forEach {
-                    val ergoId = it.key
-                    tokensAvail.firstOrNull { it.tokenId.equals(ergoId) }?.let { tokenEntity ->
+                    val tokenId = it.key
+                    tokensAvail[tokenId]?.let { tokenEntity ->
                         val tokenEntry =
                             SendTokenEntryView(
                                 uiLogic,
@@ -522,7 +533,9 @@ class SendFundsViewController(
                 })
 
                 val doneButton = PrimaryButton(texts.get(STRING_BUTTON_DONE))
-                doneButton.addOnTouchUpInsideListener { _, _ -> navigationController.popViewController(true) }
+                doneButton.addOnTouchUpInsideListener { _, _ ->
+                    navigationController.popViewController(true)
+                }
                 val doneButtonContainer = UIView()
                 doneButtonContainer.addSubview(doneButton)
                 doneButton.centerHorizontal().topToSuperview().bottomToSuperview().fixedWidth(150.0)
@@ -555,6 +568,17 @@ class SendFundsViewController(
                 runOnMainThread {
                     showTxResultError(txResult)
                 }
+            }
+        }
+
+        override fun notifyHasPreparedTx(preparedTx: TransactionInfo) {
+            runOnMainThread {
+                presentViewController(
+                    ConfirmSendFundsDialogViewController(preparedTx) {
+                        startPayment()
+                    },
+                    true
+                ) {}
             }
         }
 
